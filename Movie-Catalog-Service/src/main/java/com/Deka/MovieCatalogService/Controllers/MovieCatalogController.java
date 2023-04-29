@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -59,7 +60,8 @@ public class MovieCatalogController {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<MovieCatalog>> getAllMovies() {
+	public ResponseEntity<List<MovieCatalog>> getAllMovies(@RequestHeader("role") String role) {
+		System.out.println(role+" user");
 		List<MovieCatalog> movies = movieCatalogRepo.findAll();
 		if (movies.isEmpty()) {
 			throw new MovieNotFoundException("No movies found");
@@ -69,6 +71,7 @@ public class MovieCatalogController {
 
 	@PostMapping
 	public ResponseEntity<MovieCatalog> addMovie(@RequestBody MovieCatalog movieCatalog) {
+		
 		MovieCatalog savedMovie = movieCatalogRepo.save(movieCatalog);
 		return ResponseEntity.created(URI.create("/movie-catalog/" + savedMovie.getTitle())).body(savedMovie);
 	}
