@@ -1,0 +1,39 @@
+server:
+  port: 8084
+  forward-headers-strategy: framework  
+  
+spring:
+  application:
+    name: API-GATEWAY 
+  cloud:
+    gateway:
+      routes:
+        - id: MOVIE-CATALOG-SERVICE
+          uri: lb://MOVIE-CATALOG-SERVICE
+          predicates:
+          - Path=/movie/**
+          
+        - id: MOVIE-SCHEDULE-SERVICE
+          uri: lb://MOVIE-SCHEDULE-SERVICE
+          predicates:
+          - Path=/Shows/**
+        - id: BOOKING-SERVICE
+          uri: lb://BOOKING-SERVICE
+          predicates:
+          - Path=/Booking/**
+        
+
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+      
+      
+      
+
+      
