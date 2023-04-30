@@ -36,7 +36,7 @@ public class ScheduleController {
 	// create
 	@PostMapping("/addshow")
 	public ResponseEntity<?> createMovieSchedule(@CookieValue(value = "role",defaultValue = "invalid") String role,@Valid @RequestBody movieSchedule movieSchedule,BindingResult bindingResult) throws unauthorizedException  {
-		if(role.equals("user")|role.equals("admin")) {
+		if(role.equals("admin")) {
 		if (bindingResult.hasErrors()) {	
 			Map<String, String> errors = new HashMap<>();
 			bindingResult.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
