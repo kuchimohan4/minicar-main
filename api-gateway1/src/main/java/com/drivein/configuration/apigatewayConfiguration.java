@@ -1,4 +1,4 @@
-package com.drivein;
+package com.drivein.configuration;
 
 import java.util.function.Function;
 

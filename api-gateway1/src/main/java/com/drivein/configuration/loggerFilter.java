@@ -1,4 +1,4 @@
-package com.drivein;
+package com.drivein.configuration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
