@@ -4,7 +4,9 @@ import java.net.URI;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.Deka.MovieCatalogService.Entity.MovieCatalog;
 import com.Deka.MovieCatalogService.Exception.MovieNotFoundException;
+import com.Deka.MovieCatalogService.Exception.unauthorizedException;
 import com.Deka.MovieCatalogService.Repositories.MovieCatalogRepo;
 
 @RestController
@@ -27,17 +30,23 @@ public class MovieCatalogController {
 	private MovieCatalogRepo movieCatalogRepo;
 
 	@GetMapping("/{title}")
-	public ResponseEntity<MovieCatalog> getMovieByTitle(@PathVariable String title) {
+	public ResponseEntity<MovieCatalog> getMovieByTitle(@CookieValue(value = "role",defaultValue = "invalid") String role,@PathVariable String title) throws unauthorizedException {
+		if(role.equals("user")|role.equals("admin")) {
 		MovieCatalog movie = movieCatalogRepo.findByTitle(title);
 		if (movie == null) {
 			throw new MovieNotFoundException("Movie not found for title: " + title);
 		}
 		return ResponseEntity.ok(movie);
+		}
+		else {
+			throw new unauthorizedException("not authorized");
+		}
 	}
 
 	@PutMapping("/{title}")
-	public ResponseEntity<MovieCatalog> updateMovieDetails(@PathVariable String title,
-			@RequestBody MovieCatalog updatedMovie) {
+	public ResponseEntity<MovieCatalog> updateMovieDetails(@CookieValue(value = "role",defaultValue = "invalid") String role,@PathVariable String title,
+			@RequestBody MovieCatalog updatedMovie) throws unauthorizedException {
+		if(role.equals("user")|role.equals("admin")) {
 		MovieCatalog movie = movieCatalogRepo.findByTitle(title);
 		if (movie == null) {
 			throw new MovieNotFoundException("Movie not found for title: " + title);
@@ -47,26 +56,46 @@ public class MovieCatalogController {
 		movie.setImdbRating(updatedMovie.getImdbRating());
 		MovieCatalog savedMovie = movieCatalogRepo.save(movie);
 		return ResponseEntity.ok(savedMovie);
+	
+		}
+		else {
+			throw new unauthorizedException("not authorized");
+		}
+		
 	}
 
 	@DeleteMapping("/{title}")
-	public ResponseEntity<String> deleteMovieByTitle(@PathVariable String title) {
+	public ResponseEntity<String> deleteMovieByTitle(@CookieValue(value = "role",defaultValue = "invalid") String role,@PathVariable String title) throws unauthorizedException {
+		if(role.equals("user")|role.equals("admin")) {
+			
 		MovieCatalog movie = movieCatalogRepo.findByTitle(title);
 		if (movie == null) {
 			throw new MovieNotFoundException("Movie not found for title: " + title);
 		}
 		movieCatalogRepo.delete(movie);
 		return ResponseEntity.ok("Movie with title " + title + " deleted successfully");
-	}
+		}
+		else {
+			throw new unauthorizedException("not authorized");
+		}
+		
+		}
 
 	@GetMapping
-	public ResponseEntity<List<MovieCatalog>> getAllMovies(@RequestHeader("role") String role) {
+	public ResponseEntity<?> getAllMovies(@CookieValue(value = "role",defaultValue = "invalid") String role) throws unauthorizedException {
+		System.out.println(role);
+		if(role.equals("user")|role.equals("admin")) {
+		
 		System.out.println(role+" user");
 		List<MovieCatalog> movies = movieCatalogRepo.findAll();
 		if (movies.isEmpty()) {
 			throw new MovieNotFoundException("No movies found");
 		}
 		return ResponseEntity.ok(movies);
+		}
+		else {
+			throw new unauthorizedException("not authorized");
+		}
 	}
 
 	@PostMapping

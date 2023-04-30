@@ -6,17 +6,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.view.RedirectView;
 
 import com.driveinmoviecinema.Service.BookingService;
 import com.driveinmoviecinema.exception.noSlotsFoundException;
+import com.driveinmoviecinema.exception.unauthorizedException;
 import com.driveinmoviecinema.models.BookingDetails;
 import com.driveinmoviecinema.models.DisplayBooking;
 import com.driveinmoviecinema.models.MovieCatalog;
@@ -25,6 +29,7 @@ import com.driveinmoviecinema.models.movieSchedule;
 import com.driveinmoviecinema.repository.movieCatalogServiceProxy;
 import com.driveinmoviecinema.repository.movieScheduleServiceProxy;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
 
 
@@ -44,7 +49,8 @@ public class BookingController {
 	private movieCatalogServiceProxy catalogProxy;
 	
 	@PostMapping("/ParkingSlots")
-	public ResponseEntity<?>   parkingSlotAvaliability(@Valid @RequestBody ParkingSlot parkingSlot,BindingResult bindingResult) throws noSlotsFoundException {
+	public ResponseEntity<?>   parkingSlotAvaliability(@CookieValue(value = "role",defaultValue = "invalid") String role,@Valid @RequestBody ParkingSlot parkingSlot,BindingResult bindingResult) throws noSlotsFoundException, unauthorizedException {
+		if(role.equals("user")|role.equals("admin")) {
 		if (bindingResult.hasErrors()) {
 			Map<String, String> errors = new HashMap<>();
 			bindingResult.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
@@ -61,11 +67,15 @@ public class BookingController {
 		
 		
 		return new ResponseEntity<>(bookingService.parkingSlotAvaliability(parkingSlot),HttpStatus.OK);
+		}
+		else {
+			throw new unauthorizedException("not authorized");
+			}
 		
 	}
 	@PostMapping("/BookTicket")
-	public ResponseEntity<?>  BookTicket(@Valid @RequestBody BookingDetails bookingDetails,BindingResult bindingResult)throws noSlotsFoundException {
-		
+	public ResponseEntity<?>  BookTicket(@CookieValue(value = "role",defaultValue = "invalid") String role,@Valid @RequestBody BookingDetails bookingDetails,BindingResult bindingResult)throws noSlotsFoundException, unauthorizedException {
+		if(role.equals("user")|role.equals("admin")) {
 		if (bindingResult.hasErrors()) {	
 			Map<String, String> errors = new HashMap<>();
 			bindingResult.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
@@ -84,10 +94,15 @@ public class BookingController {
 		bookingDetails.setAmount((int) amount);
 		
 		return new ResponseEntity<>(bookingService.BookTicket(bookingDetails),HttpStatus.ACCEPTED);
+		}
+		else {
+			throw new unauthorizedException("not authorized");
+			}
+		
 	}
 	@GetMapping("/viewBookingDetails/{id}")
-	public DisplayBooking showBookingDetails(@PathVariable String id)throws noSlotsFoundException {
-		
+	public ResponseEntity<?> showBookingDetails(@CookieValue(value = "role",defaultValue = "invalid") String role,@PathVariable String id)throws noSlotsFoundException, unauthorizedException {
+		if(role.equals("user")|role.equals("admin")) {
 		BookingDetails bDetails=bookingService.showBookingDetails(id);
 		ResponseEntity<MovieCatalog> movieResponseEntity=catalogProxy.getMovieByTitle(bDetails.getMovieTitle());
 		
@@ -96,19 +111,34 @@ public class BookingController {
 		
 		
 		
-		return displayBooking;	
+		return new ResponseEntity<>(displayBooking, HttpStatus.OK) ;	
+		}
+		else {
+			throw new unauthorizedException("not authorized");
+			}
 	}
 	@DeleteMapping("/CancelBooking/{id}")
-	public BookingDetails cancelBooking(@PathVariable String id) throws noSlotsFoundException {
+	public ResponseEntity<?> cancelBooking( @CookieValue(value = "role",defaultValue = "invalid")  String role,@PathVariable String id) throws noSlotsFoundException, unauthorizedException {
+		if(role.equals("user")|role.equals("admin")) {
 		
-		
-		return bookingService.cancelBooking(id);
+		return new ResponseEntity<>(bookingService.cancelBooking(id), HttpStatus.OK) ;
+		}
+		else {
+			
+			throw new unauthorizedException("not authorized");
+			}
 	}
 	
 	@ExceptionHandler
 	public ResponseEntity<?> exceptionHandeler(Exception ex) {
 		return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
 		
+	}
+	@ExceptionHandler(unauthorizedException.class)
+	public ResponseEntity<?> handleunauthorizedException(Exception ex) {
+RedirectView  redirectView=new RedirectView("/login");
+		
+		return new ResponseEntity<>(redirectView, HttpStatus.UNAUTHORIZED);
 	}
 	
 

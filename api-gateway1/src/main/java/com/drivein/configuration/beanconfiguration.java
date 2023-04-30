@@ -10,7 +10,7 @@ public class beanconfiguration {
 	
 	@Bean
 	public userDetails getuDetails() {
-		return  new userDetails() ;
+		return  new userDetails("","","") ;
 	}
 
 }

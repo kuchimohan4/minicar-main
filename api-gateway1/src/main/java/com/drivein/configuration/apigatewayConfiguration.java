@@ -21,10 +21,7 @@ public class apigatewayConfiguration {
 	
 	@Autowired
 	private userdetailsService userdetailsService;
-	private Logger logger=LoggerFactory.getLogger(apigatewayConfiguration.class);
 	
-	@Autowired
-	private userDetails userDetails;
 	
 	
 	
@@ -38,7 +35,7 @@ public class apigatewayConfiguration {
 //						.uri("http://httpbin.org:80")
 //						)
 				.route(p -> p.path("/movie/**")
-						.filters(f -> f.addRequestHeader("role",validateuserrole() ))
+//						.filters(f -> f.addRequestHeader("rol",validateuserrole() ))
 						.uri("lb://MOVIE-CATALOG-SERVICE"))
 				.route(p -> p.path("/catalog/**")
 						.uri("lb://MOVIE-CATALOG-SERVICE"))
@@ -52,20 +49,7 @@ public class apigatewayConfiguration {
 	}
 	
 	
-	public String validateuserrole() {
-		logger.info("heelo");
-		if((userDetails.getRole().equals("user")  |userDetails.getRole().equals("admin"))) {
-			
-			System.out.println("1st");
-			return userDetails.getRole();
-		}
-		else {
-//			System.out.println(userDetails.getRole());
-			return userDetails.getUserName();
-		}
-		
-		
-	}
+	
 		
 //	public String validate
 	
