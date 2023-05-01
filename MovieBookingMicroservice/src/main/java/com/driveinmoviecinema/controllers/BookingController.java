@@ -1,6 +1,7 @@
 package com.driveinmoviecinema.controllers;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +75,7 @@ public class BookingController {
 		
 	}
 	@PostMapping("/BookTicket")
-	public ResponseEntity<?>  BookTicket(@CookieValue(value = "role",defaultValue = "invalid") String role,@Valid @RequestBody BookingDetails bookingDetails,BindingResult bindingResult)throws noSlotsFoundException, unauthorizedException {
+	public ResponseEntity<?>  BookTicket(@CookieValue(value = "user",defaultValue = "invalid") String user,@CookieValue(value = "role",defaultValue = "invalid") String role,@Valid @RequestBody BookingDetails bookingDetails,BindingResult bindingResult)throws noSlotsFoundException, unauthorizedException {
 		if(role.equals("user")|role.equals("admin")) {
 		if (bindingResult.hasErrors()) {	
 			Map<String, String> errors = new HashMap<>();
@@ -90,9 +91,9 @@ public class BookingController {
 		String parking_slot=bookingDetails.getParkingSlotNumber();
 		double amount= (parking_slot.contains("A")|parking_slot.contains("B"))? movieSchedule.getPriceForFirstTwoRows():((parking_slot.contains("C")|parking_slot.contains("D"))? movieSchedule.getPriceForMiddleTwoRows():movieSchedule.getPriceForLastTwoRows());
 		
-		System.out.println(amount);
-		bookingDetails.setAmount((int) amount);
 		
+		bookingDetails.setAmount((int) amount);
+		bookingDetails.setUserID(user);
 		return new ResponseEntity<>(bookingService.BookTicket(bookingDetails),HttpStatus.ACCEPTED);
 		}
 		else {
@@ -101,10 +102,10 @@ public class BookingController {
 		
 	}
 	@GetMapping("/viewBookingDetails/{id}")
-	public ResponseEntity<?> showBookingDetails(@CookieValue(value = "role",defaultValue = "invalid") String role,@PathVariable String id)throws noSlotsFoundException, unauthorizedException {
+	public ResponseEntity<?> showBookingDetails(@CookieValue(value = "user",defaultValue = "invalid") String user,@CookieValue(value = "role",defaultValue = "invalid") String role,@PathVariable String id)throws noSlotsFoundException, unauthorizedException {
 		if(role.equals("user")|role.equals("admin")) {
-		BookingDetails bDetails=bookingService.showBookingDetails(id);
-		ResponseEntity<MovieCatalog> movieResponseEntity=catalogProxy.getMovieByTitle(bDetails.getMovieTitle());
+		BookingDetails bDetails=bookingService.showBookingDetails(id,user);
+		ResponseEntity<MovieCatalog> movieResponseEntity=catalogProxy.getMovieByTitle("user",bDetails.getMovieTitle());
 		
 		MovieCatalog movieDetails=movieResponseEntity.getBody();
 		DisplayBooking displayBooking=new DisplayBooking(bDetails.getTicketConformationId(), bDetails.getCarNumber(), bDetails.getMovieDate(), bDetails.getMoviePlayTime(), bDetails.getParkingSlotNumber(), bDetails.getTicketStatus(), movieDetails);
@@ -117,6 +118,20 @@ public class BookingController {
 			throw new unauthorizedException("not authorized");
 			}
 	}
+	
+	@GetMapping("/viewBookingDetails/allBookings")
+	public ResponseEntity<?> showallBookingDetails(@CookieValue(value = "user",defaultValue = "invalid") String user,@CookieValue(value = "role",defaultValue = "invalid") String role)throws noSlotsFoundException, unauthorizedException {
+		if(role.equals("user")|role.equals("admin")) {
+		List<BookingDetails>  bDetails=bookingService.showallBookingDetails(user);
+		
+		return new ResponseEntity<>(bDetails, HttpStatus.OK) ;	
+		}
+		else {
+			throw new unauthorizedException("not authorized");
+			}
+	}
+	
+	
 	@DeleteMapping("/CancelBooking/{id}")
 	public ResponseEntity<?> cancelBooking( @CookieValue(value = "role",defaultValue = "invalid")  String role,@PathVariable String id) throws noSlotsFoundException, unauthorizedException {
 		if(role.equals("user")|role.equals("admin")) {
@@ -136,7 +151,7 @@ public class BookingController {
 	}
 	@ExceptionHandler(unauthorizedException.class)
 	public ResponseEntity<?> handleunauthorizedException(Exception ex) {
-RedirectView  redirectView=new RedirectView("/login");
+   RedirectView  redirectView=new RedirectView("/login");
 		
 		return new ResponseEntity<>(redirectView, HttpStatus.UNAUTHORIZED);
 	}

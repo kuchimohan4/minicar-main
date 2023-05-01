@@ -66,16 +66,19 @@ public class BookingServiceDaoImpl implements BookingServiceDao {
 	}
 
 	@Override
-	public BookingDetails showBookingDetails(String id) throws noSlotsFoundException {
-		
-		BookingDetails bookingDetailsOfuser= bookingDetailsRepositry.findById(id).orElse(new BookingDetails());
+	public BookingDetails showBookingDetails(String id,String user) throws noSlotsFoundException {
 		
 		
-		if(bookingDetailsOfuser.getTicketConformationId()==null) {
+		List<BookingDetails> bookingDetailsOfuser=bookingDetailsRepositry.findByticketConformationIdAndUserID(id, user);
+		
+//		BookingDetails bookingDetailsOfuser= bookingDetailsRepositry.findById(id).orElse(new BookingDetails());
+		
+		
+		if(bookingDetailsOfuser.size()==0) {
 			throw new noSlotsFoundException("NO BOOKING WITH BOOKING ID "+id);
 		}
 		
-		return bookingDetailsOfuser;
+		return bookingDetailsOfuser.get(0);
 	}
 
 	@Override
@@ -91,6 +94,20 @@ public class BookingServiceDaoImpl implements BookingServiceDao {
 		parkingSlot.setAvliable(true);
 		parkingSlotRepository.save(parkingSlot);
 		return bookingDetailsRepositry.save(bookingDetailsOfuser);
+	}
+
+	@Override
+	public List<BookingDetails> showallBookingDetails(String user) throws noSlotsFoundException {
+		List<BookingDetails> bookingDetailsOfuser=bookingDetailsRepositry.findByUserID(user);
+		
+//		BookingDetails bookingDetailsOfuser= bookingDetailsRepositry.findById(id).orElse(new BookingDetails());
+		
+		
+		if(bookingDetailsOfuser.size()==0) {
+			throw new noSlotsFoundException("NO BOOKING WITH USER ID "+user);
+		}
+		
+		return bookingDetailsOfuser;
 	}
 
 }

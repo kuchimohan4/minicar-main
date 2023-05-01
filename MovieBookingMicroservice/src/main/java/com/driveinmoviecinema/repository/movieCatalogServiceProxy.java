@@ -2,8 +2,10 @@ package com.driveinmoviecinema.repository;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+
 
 import com.driveinmoviecinema.models.MovieCatalog;
 
@@ -11,6 +13,6 @@ import com.driveinmoviecinema.models.MovieCatalog;
 public interface movieCatalogServiceProxy {
 
 	@GetMapping("/movie/{title}")
-	public ResponseEntity<MovieCatalog> getMovieByTitle(@PathVariable String title);
+	public ResponseEntity<MovieCatalog> getMovieByTitle(@CookieValue(value = "role",defaultValue = "invalid") String role,@PathVariable String title) ;
 
 }

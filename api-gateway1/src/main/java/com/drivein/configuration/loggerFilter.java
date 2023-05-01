@@ -27,6 +27,14 @@ public class loggerFilter implements GlobalFilter {
 		// TODO Auto-generated method stub
 		logger.info("path of request receved -> {}",exchange.getRequest().getPath());
 		exchange.getResponse().addCookie(ResponseCookie.from("role",validateuserrole()).build());
+		if(exchange.getRequest().getURI().toString().contains("/Booking/BookTicket")|exchange.getRequest().getURI().toString().contains("/Booking/viewBookingDetails/")) {
+			exchange.getResponse().addCookie(ResponseCookie.from("user",userDetails.getUserName()).build());
+		}
+		
+		
+		System.out.println(exchange.getRequest().getURI().toString());
+//		/Booking/BookTicket
+//		.contains("/Booking/viewBookingDetails/")
 //		exchange.getRequest().mutate().header("role", validateuserrole());
 		return chain.filter(exchange);
 	}

@@ -1,5 +1,7 @@
 package com.driveinmoviecinema.Service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,9 +30,9 @@ public class BookingServiceimpl implements BookingService {
 	}
 
 	@Override
-	public BookingDetails showBookingDetails(String id) throws noSlotsFoundException {
+	public BookingDetails showBookingDetails(String id,String user) throws noSlotsFoundException {
 		// TODO Auto-generated method stub
-		return bookingServiceDao.showBookingDetails(id);
+		return bookingServiceDao.showBookingDetails(id,user);
 	}
 
 	@Override
@@ -38,6 +40,14 @@ public class BookingServiceimpl implements BookingService {
 		// TODO Auto-generated method stub
 		return bookingServiceDao.cancelBooking(id);
 	}
+
+	@Override
+	public List<BookingDetails> showallBookingDetails(String user) throws noSlotsFoundException {
+		// TODO Auto-generated method stub
+		return bookingServiceDao.showallBookingDetails(user);
+	}
+
+	
 
 	
 

@@ -1,5 +1,7 @@
 package com.driveinmoviecinema.Service;
 
+import java.util.List;
+
 import com.driveinmoviecinema.exception.noSlotsFoundException;
 import com.driveinmoviecinema.models.BookingDetails;
 import com.driveinmoviecinema.models.ParkingSlot;
@@ -12,8 +14,10 @@ public interface BookingService {
 
 	public BookingDetails BookTicket(BookingDetails bookingDetails) throws noSlotsFoundException;
 
-	public BookingDetails showBookingDetails(String id) throws noSlotsFoundException;
-
 	public BookingDetails cancelBooking(String id)throws noSlotsFoundException;
+
+	public BookingDetails showBookingDetails(String id, String user) throws noSlotsFoundException;
+
+	public List<BookingDetails> showallBookingDetails(String user) throws noSlotsFoundException;
 
 }
