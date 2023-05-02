@@ -1,0 +1,51 @@
+   
+spring:
+  application:
+    name: API-GATEWAY 
+  cloud:
+    gateway:
+      routes:
+        - id: MOVIE-CATALOG-SERVICE
+          uri: lb://MOVIE-CATALOG-SERVICE
+          predicates:
+          - Path=/movie/**
+          filters:
+          - authenticationfilter
+        - id: MOVIE-CATALOG-SERVICE
+          uri: lb://MOVIE-CATALOG-SERVICE
+          predicates:
+          - Path=/catalog/**
+          filters:
+          - authenticationfilter
+        - id: MOVIE-SCHEDULE-SERVICE
+          uri: lb://MOVIE-SCHEDULE-SERVICE
+          predicates:
+          - Path=/Shows/**
+          filters:
+          - authenticationfilter
+        - id: MOVIE-SCHEDULE-SERVICE
+          uri: lb://MOVIE-SCHEDULE-SERVICE
+          predicates:
+          - Path=/shedule/**
+          filters:
+          - authenticationfilter
+        - id: BOOKING-SERVICE
+          uri: lb://BOOKING-SERVICE
+          predicates:
+          - Path=/Booking/**
+          filters:
+          - authenticationfilter
+        - id: SECURITY-SERVICE
+          uri: lb://SECURITY-SERVICE
+          predicates:
+          - Path=/auth/**
+          filters:
+          - authenticationfilter
+        
+        
+
+      
+      
+      
+
+      

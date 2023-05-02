@@ -57,7 +57,7 @@ public class ScheduleController {
 		return ResponseEntity.ok(schedule);
 	}
 
-	@GetMapping("allMovies")
+	@GetMapping("/allMovies")
 	public ResponseEntity<List<movieSchedule>> getAllSchedule() {
 		List<movieSchedule> allSchedule = scheduleService.getAllSchedule();
 		return ResponseEntity.ok(allSchedule);

@@ -80,7 +80,7 @@ public class BookingController {
 		String parking_slot=bookingDetails.getParkingSlotNumber();
 		double amount= (parking_slot.contains("A")|parking_slot.contains("B"))? movieSchedule.getPriceForFirstTwoRows():((parking_slot.contains("C")|parking_slot.contains("D"))? movieSchedule.getPriceForMiddleTwoRows():movieSchedule.getPriceForLastTwoRows());
 		
-		System.out.println(amount);
+//		System.out.println(amount);
 		bookingDetails.setAmount((int) amount);
 		
 		return new ResponseEntity<>(bookingService.BookTicket(bookingDetails),HttpStatus.ACCEPTED);
@@ -93,9 +93,6 @@ public class BookingController {
 		
 		MovieCatalog movieDetails=movieResponseEntity.getBody();
 		DisplayBooking displayBooking=new DisplayBooking(bDetails.getTicketConformationId(), bDetails.getCarNumber(), bDetails.getMovieDate(), bDetails.getMoviePlayTime(), bDetails.getParkingSlotNumber(), bDetails.getTicketStatus(), movieDetails);
-		
-		
-		
 		return displayBooking;	
 	}
 	@DeleteMapping("/CancelBooking/{id}")
